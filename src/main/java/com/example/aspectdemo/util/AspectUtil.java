@@ -19,14 +19,22 @@ import java.util.stream.Stream;
 @Component
 public class AspectUtil {
 
-    @Pointcut("execution(public * com.example.aspectdemo.conr.*.*(..))")
+    /**
+     * 无法对外置依赖包静态方法进行pointcut
+     * 无法对本身静态方法进行pointcut
+     */
+    @Pointcut("execution(public * com.example.aspectdemo.conr.*.*(..)) " +
+            "|| execution(public * com.example.aspectdemo.util.StringUtilz.*(..))" +
+            "|| execution(public * com.example.aspectdemo.util.JSONObj.*(..))" +
+            "|| execution(public * cn.hutool.json.JSONObject.*(..))" )
     public void log() {
         System.out.println("log invoke");
     }
 
     @Before("log()")
     public void doBefore(JoinPoint joinPoint) throws Exception {
-
+        String method = joinPoint.getSignature().getDeclaringTypeName() +"."+ joinPoint.getSignature().getName();// 获得目标方法名
+        System.out.println(method + "方法开始执行");
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
         HttpServletRequest request = attributes.getRequest();
